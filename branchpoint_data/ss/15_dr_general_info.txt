@@ -1,0 +1,2 @@
+Name,Database,NumberRows,NumberColumns,OpticDiscCentre_1,OpticDiscCentre_2,OpticDiscRadius
+15_dr,HRF,2336,3504,1043,53,190.541334098405

@@ -1,0 +1,2 @@
+Name,Database,NumberRows,NumberColumns,OpticDiscCentre_1,OpticDiscCentre_2,OpticDiscRadius
+24_manual1,DRIVE,584,565,201.5,-2,45.9673797382448
