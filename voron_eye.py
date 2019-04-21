@@ -18,7 +18,7 @@ from numpy import pi, sin, cos
 from mpl_toolkits.mplot3d import Axes3D
 
 epsilon = 1e-10 #Small value for floating point comparison
- 
+
 
 # =============================================================================
 # TESTING: RANDOM POINTS ON SQUARE IMAGE
@@ -51,6 +51,33 @@ epsilon = 1e-10 #Small value for floating point comparison
 #point_array = np.concatenate((x_T,y_T),0).T
 #circular_mask = Polygon(point_array)
 #
+
+
+def optimum_bin_number(dist):
+    """Finds optimal bin size using the interquartile range.
+    PARAMETERS
+    ---
+    dist: list
+        Distribution to be histogrammed
+    RETURNS
+    ---
+    N_bins: int
+        Number of bins to use
+    REFERENCES
+    ---
+    https://www.fmrib.ox.ac.uk/datasets/techrep/tr00mj2/tr00mj2/node24.html
+    """
+    ran = max(dist) -min(dist) #Range
+    uq, lq = np.percentile(dist,[75,25])
+    bin_width_iqr = 2*(uq-lq)*len(dist)**(-1/3) #https://www.fmrib.ox.ac.uk/datasets/techrep/tr00mj2/tr00mj2/node24.html
+    
+    N_bins = int(ran/bin_width_iqr)
+    print("# of core Voronoi cells : ", len(dist))
+    print("Range:                  : ",ran)
+    print("IQR                     : ",uq-lq)
+    print("Optimum number of bins  : ",N_bins)
+    
+    return N_bins
 
 def compare_flat_and_curved_distributions(voronoi_sites,mask,R_eye,R_im,im_w,im_h,FOV,x_0,y_0,R_optic,plot=True,threshold = epsilon):
     """ Calculates the distribution of the areas of Voronoi cells which are not\
@@ -190,7 +217,7 @@ the areas of the cells to the cell area is less than this, the full region will 
         fig1.text(0,0.06,"Green/blue cells are core cells")
         fig1.text(0,0.11,"Red cells are boundary cells, white cells are outside of the field of view")
     return flat_core_cell_areas, curved_core_cell_areas
-def curved_core_cell_areas(voronoi_sites,mask,R_eye,FOV,x_0,y_0,R_optic,phi_N=100,lat_N=100,plot=True,threshold=None,verbose=False):
+def curved_core_cell_areas(voronoi_sites,mask,R_eye,FOV,x_0,y_0,R_optic,phi_N=100,lat_N=100,plot=True,exclude_boundary=True,verbose=False):
     """
     voronoi_sites: nested list
         List of 2d coordinates of Voronoi sites of the form [[x0,y0],[x1,y1]]
@@ -208,11 +235,12 @@ def curved_core_cell_areas(voronoi_sites,mask,R_eye,FOV,x_0,y_0,R_optic,phi_N=10
         x,y position of centre of optic disc (from bottom left corner) and the radius of the optic disc
     plot: boolean
         Plots the Voronoi diagram if True
-    threshold: float
-        Threshold for comparison of the boundary sites. If the ratio of the difference between
-the areas of the cells to the cell area is less than this, the full region will be included in the analysis
+    exclude_boundary: boolean (default: True)
+        If True does not calculate the areas of Voronoi cells outside of or on the boundary
     RETURNS
     ---
+    regions: (phi_n x lat_N) np.ndarray
+        A raster of the Voronoi regions in the image
     curved_core_cell_area_dist: np array
         Core Voronoi cell areas for curved geometry as a numpy array"""
     # =============================================================================
@@ -232,7 +260,9 @@ the areas of the cells to the cell area is less than this, the full region will 
     
     optic_disc = Polygon(optic_disc_boundary)
     mask = mask.difference(optic_disc)
-    
+#    if plot:
+#        plt.figure()
+#        plt.imshow(mask)
 
     # =============================================================================
     # CALCULATED CONSTANTS
@@ -246,8 +276,9 @@ the areas of the cells to the cell area is less than this, the full region will 
     # =============================================================================
     # PLOT PARAMS
     # =============================================================================
-    print("Plotting: {}".format(plot))
+    
     if plot:
+        print("Plotting: {}".format(plot))
         plt.rcParams.update({"font.size":12})
     
     s_sites = list()
@@ -267,8 +298,7 @@ the areas of the cells to the cell area is less than this, the full region will 
     # Define grid
     # =============================================================================
     phis,lats = np.ogrid[-pi:pi:phi_N*1j,lat_min:lat_max:lat_N*1j]
-    regions = np.zeros((phi_N,lat_N))
-    
+    regions = -np.ones((phi_N,lat_N))
     # =============================================================================
     # CONVERT SPHERICAL POLAR GRID TO CARTESIAN (FOR COMPARISON WITH MASK AND PLOTTING)
     # =============================================================================
@@ -315,6 +345,42 @@ the areas of the cells to the cell area is less than this, the full region will 
                         closest_site = i3
                 if closest_site is not None:
                     regions[i1,i2]=closest_site
+                else:
+                    print("Voronoi Region for site {} is empty".format(i3))
+
+    # =============================================================================
+    # IDENTIFY BOUNDARY CELLS
+    # =============================================================================
+    #Set boundary cells to have an index of -1
+    if plot:
+        
+        plt.figure()
+        plt.title(r"$(\phi, \lambda)$ before removing boundary regions".format())
+        plt.imshow(regions)
+    
+    if exclude_boundary:
+        boundaries = -np.ones((phi_N,lat_N))
+        for i1 in range(phi_N):
+            for i2 in range(lat_N):
+                if not regions[i1,i2]==-1:
+                    if (regions[i1-1:i1+1,i2-1:i2+1]==-1).any() or i2 == 0:
+                        boundaries[i1,i2]=True
+        if plot:
+            plt.figure()
+            plt.title("Boundaries")
+            plt.imshow(boundaries)
+        for i3 in range(len(s_sites)):
+            coords = (regions==i3)
+            #Check if close to the edge of the image (contains a pixel with a latitdue on the boundary)
+            if (coords==boundaries).any():
+                np.putmask(regions,regions==i3,-1)
+                print("{} is a boundary cell".format(i3))
+    if plot:
+        plt.figure()
+        plt.title(r"$(\phi, \lambda)$ plot".format())
+        plt.imshow(regions)
+        plt.xlabel("$\lambda$ index")
+        plt.ylabel("$\phi$ index")
     # =============================================================================
     # PLOT REGIONS IN 3D
     # =============================================================================
@@ -344,7 +410,7 @@ the areas of the cells to the cell area is less than this, the full region will 
     # =============================================================================
     # CALCULATE AREAS
     # =============================================================================
-    def area_on_eye(lam,R,d_phi,d_angle):
+    def area_on_eye(lam,R,d_phi,d_lat):
         return R**2*cos(lam)*d_phi*d_lat
     
     region_areas = np.zeros(len(s_sites))
@@ -353,13 +419,12 @@ the areas of the cells to the cell area is less than this, the full region will 
         for i2 in range(lat_N):
             if mask.contains(Point(R_c[i1,i2,0:2])):
                 i3 = int(regions[i1,i2])
-#                if i3 not in region_areas:
-#                    region_areas[i3] = 0
-                region_areas[i3] += area_on_eye(lats[0,i2],R_eye,d_phi,d_lat)
+                if i3 != -1:
+                    region_areas[i3] += area_on_eye(lats[0,i2],R_eye,d_phi,d_lat)
     if verbose:
             
         # =============================================================================
-        # TEST 2: CHECK TOTAL AREA OF CONIC SECTION = ANALYTICAL VALUE
+        # TEST 2: CHECK TOTAL AREA OF SPHERICAL CAP = ANALYTICAL VALUE
         # =============================================================================
         A_analytic = 2*pi*R_eye**2*(sin(lat_max)-sin(lat_min)) #Analytic solution
         A = sum(region_areas.values())
@@ -559,7 +624,7 @@ def plot_log_distribution(array,name,n=100,norm=False,fig=None,ax=None):
     bin_centres = [.5*sum(bin_edges[i:i+2]) for i in range(0,len(bin_edges)-1)]
     #plt.semilogx(bin_centres,prob_dist,'b+',label="Mass density")
     
-    ax.semilogx(bin_centres,prob_density,'o',label="Prob. density {}".format(name.capitalize()))
+    ax.semilogx(bin_centres,prob_density,'o',label="{}".format(name.capitalize()))
     ax.set_ylim(0,max(prob_density))
     ax.grid()
     fig.suptitle('{} distribution'.format(name.capitalize()))
@@ -569,7 +634,7 @@ def plot_log_distribution(array,name,n=100,norm=False,fig=None,ax=None):
     
     return fig,ax
 
-def plot_linear_distribution(array,name,n=100,norm=False,density=False,fig=None,ax=None):
+def plot_linear_distribution(array,name,n=100,norm=False,density=False,fig=None,ax=None,formatting=None):
     '''Plots linear frequency and cumulative distributions for a quantity
     PARAMETERS
     ---
@@ -597,6 +662,10 @@ def plot_linear_distribution(array,name,n=100,norm=False,density=False,fig=None,
         average = sum(array)/len(array)
         array = array/average
     
+    if not formatting:
+        formatting = {"marker": "o"}
+    if n=="auto":
+        n = optimum_bin_number(array)
     max_degree = max(array)
     bin_edges = np.linspace(0,max_degree,n-1)
     bin_edges = list(bin_edges)
@@ -607,9 +676,10 @@ def plot_linear_distribution(array,name,n=100,norm=False,density=False,fig=None,
         prob_density,bins = np.histogram(array,bins=bin_edges,density=True) #Probability density
         bin_centres = [.5*sum(bin_edges[i:i+2]) for i in range(0,len(bin_edges)-1)]
         ax.set_ylabel(r'Probability Density')
-        ax.plot(bin_centres,prob_density,'o',label="Prob. density {}".format(name.capitalize()))
+        ax.scatter(bin_centres,prob_density,label="{}".format(name.capitalize()),**formatting)
         ax.set_ylim(0,max(prob_density)*1.1)
         ax.grid()
+        #print(sum(prob_density*(bin_edges[1]-bin_edges[0])))
     #PLOT NORMALIZED PROBABILITY
     if norm:
         degree_dist,bins = np.histogram(array,bins=bin_edges,density=False)
@@ -622,7 +692,7 @@ def plot_linear_distribution(array,name,n=100,norm=False,density=False,fig=None,
         ax.plot(bin_centres,prob_dist,'o',label="{}".format(name.capitalize()))
         ax.set_ylim(0,max(prob_dist)*1.1)
         ax.grid()
-    fig.suptitle('{} distribution'.format(name.capitalize()))
+    fig.suptitle('{} distribution'.format(name))
     ax.set_xlabel('{}'.format(name))
     
     ax.legend()
@@ -669,7 +739,7 @@ Kolmogorov-Smirnoff test
             fig = plt.figure()
             ax = fig.add_subplot(111)
         
-        ax.scatter(bin_centres*2,prob_dist,label="{}".format(name))
+        ax.scatter(bin_centres*2,prob_dist,label="{}".format(name),**formatting)
         smooth_xs = 2*np.linspace(min(bin_centres),max(bin_centres),50)
         ax.plot(smooth_xs,ref_dist(smooth_xs),"g--",label="Random")
         ax.set_ylim((0,1))
