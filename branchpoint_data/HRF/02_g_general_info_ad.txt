@@ -1,0 +1,2 @@
+NumberRows,NumberColumns,OpticDiscCentre_1,OpticDiscCentre_2,OpticDiscRadius
+2336,3504,-646,330,180
