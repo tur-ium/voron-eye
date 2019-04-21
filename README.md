@@ -41,6 +41,7 @@ CONTACT
 -------
 For more information or to report bugs contact Artur Donaldson (@tur-ium)
 
+``
 |\     /|(  ___  )(  ____ )(  ___  )( (    /|       (  ____ \|\     /|(  ____ \
 | )   ( || (   ) || (    )|| (   ) ||  \  ( |       | (    \/( \   / )| (    \/
 | |   | || |   | || (____)|| |   | ||   \ | | _____ | (__     \ (_) / | (__    
@@ -48,4 +49,6 @@ For more information or to report bugs contact Artur Donaldson (@tur-ium)
  \ \_/ / | |   | || (\ (   | |   | || | \   |       | (         ) (   | (      
   \   /  | (___) || ) \ \__| (___) || )  \  |       | (____/\   | |   | (____/\
    \_/   (_______)|/   \__/(_______)|/    )_)       (_______/   \_/   (_______/
+``
+
 A PACKAGE FOR VORONOI ANALYSIS OF RETINAL IMAGES
