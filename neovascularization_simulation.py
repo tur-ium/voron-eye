@@ -2,7 +2,18 @@
 """
 Created on Mon Mar 11 20:28:57 2019
 
-@author: admin
+@author: Artur Donaldson
+
+A simple model for the effects of neovascularization of the Voronoi cell area
+diagram using blood vessel branchpoints as seed points. 
+
+The simulation is run NR times to form an ensemble of realizations of the blood
+vessel network. Please be patient or adjust NR.
+
+Plots the Voronoi cell diagrams at a series of observation points and the \
+peak of the normalized area distribution over time using a moving average with a\
+window width of 5
+
 """
 
 from scipy.spatial import Voronoi, voronoi_plot_2d
@@ -19,8 +30,8 @@ from generalized_analysis import generalized_ks_test
 # =============================================================================
 im_w = 3500
 im_h = 2336
-NR = 100 #Number of realizations of the Voronoi cells to include in the ensemble
-mask = Polygon([[0,0],[im_w,0],[im_w,im_h],[0,im_h]]) 
+NR = 10 #Number of realizations of the Voronoi cells to include in the ensemble
+mask = Polygon([[0,0],[im_w,0],[im_w,im_h],[0,im_h]])#REGION OF THE IMAGE TO INCLUDE
 Nsites = 100 #Initial number of sites 
 addThisMany = 150 #Number of sites to add
 
@@ -103,7 +114,6 @@ for plots in range(NR):
             a = int(.5*len(observation_points))*100+int(.5*len(observation_points))*10+observations
             ax = fig1.add_subplot(a)
             plt.figure()
-            plt.hist(norm_areas,density=True)
             voronoi_plot_2d(Voronoi(sites),show_points=None,show_vertices=False,ax=ax)
             ax.set_xlim([0,im_w])
             ax.set_ylim([0,im_h])
