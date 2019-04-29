@@ -179,24 +179,24 @@ print("---\nHEALTHY\n---")
 fmt=fmt_h.copy()
 
 #GAMMA
-data = fa_h
-condition = "Healthy flat"
+#data = fa_h
+#condition = "Healthy flat"
 fmt.update({"marker":"x"})
-if plot_gamma:
-    a,loc,scale = gamma.fit(data,floc=0)
-    generalized_ks_test(data,gamma,label="Gamma",floc=floc)
-    fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-    ax5.plot(np.linspace(xmin,xmax,100),fit_h,"g--",label="Gamma fit for {}".format(condition))
-if plot_lognorm:
-    #LOGNORM
-    if floc: 
-        a,loc,scale = lognorm.fit(data,floc=0) 
-    else: 
-        a,loc,scale = lognorm.fit(data)
-    generalized_ks_test(data,lognorm,label="Lognorm",floc=floc)
-    fit_h = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-    ax5.plot(np.linspace(xmin,xmax,100),fit_h,"g--",label="fit for {}".format(condition))
-plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
+#if plot_gamma:
+#    a,loc,scale = gamma.fit(data,floc=0)
+#    generalized_ks_test(data,gamma,label="Gamma",floc=floc)
+#    fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+#    ax5.plot(np.linspace(xmin,xmax,100),fit_h,"g--",label="Gamma fit for {}".format(condition))
+#if plot_lognorm:
+#    #LOGNORM
+#    if floc: 
+#        a,loc,scale = lognorm.fit(data,floc=0) 
+#    else: 
+#        a,loc,scale = lognorm.fit(data)
+#    generalized_ks_test(data,lognorm,label="Lognorm",floc=floc)
+#    fit_h = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+#    ax5.plot(np.linspace(xmin,xmax,100),fit_h,"g--",label="fit for {}".format(condition))
+#plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
 
 data = ca_h
 condition = "Healthy curved"
@@ -225,33 +225,34 @@ plot_errorbar(np.array(norm_areas),np.array(errs),label=condition,ax=ax5,color=f
 # =============================================================================
 print("---\nDR\n---")
 fmt=fmt_dr
-data = fa_pdr
-condition = "PDR flat"
-fmt.update({"marker":"x"})
-if plot_gamma:
-    a,loc,scale = gamma.fit(data,floc=0)
-    generalized_ks_test(data,gamma,label="Gamma",floc=floc)
-    fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-    ax5.plot(np.linspace(xmin,xmax,100),fit_h,"r--",label="Gamma fit for {}".format(condition))
-if plot_lognorm:
-    #LOGNORM
-    if floc: 
-        a,loc,scale = lognorm.fit(data,floc=0) 
-    else:
-        a,loc,scale = lognorm.fit(data)
-    generalized_ks_test(data,lognorm,label="Lognormal",floc=floc)
-    fit_dr = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-    ax5.plot(np.linspace(xmin,xmax,100),fit_dr,"r--",label="fit for {}".format(condition))
-plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
+#data = fa_pdr
+#condition = "PDR flat"
+#fmt.update({"marker":"x"})
+#if plot_gamma:
+#    a,loc,scale = gamma.fit(data,floc=0)
+#    generalized_ks_test(data,gamma,label="Gamma",floc=floc)
+#    fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+#    ax5.plot(np.linspace(xmin,xmax,100),fit_h,"r--",label="Gamma fit for {}".format(condition))
+#if plot_lognorm:
+#    #LOGNORM
+#    if floc: 
+#        a,loc,scale = lognorm.fit(data,floc=0) 
+#    else:
+#        a,loc,scale = lognorm.fit(data)
+#    generalized_ks_test(data,lognorm,label="Lognormal",floc=floc)
+#    fit_dr = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+#    ax5.plot(np.linspace(xmin,xmax,100),fit_dr,"r--",label="fit for {}".format(condition))
+#plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
 
 data = ca_pdr
 condition = "PDR curved"
+fmt.update({"color":"m"})
 fmt.update({"marker":"o"})
 if plot_gamma:
     a,loc,scale = gamma.fit(data,floc=0)
     generalized_ks_test(data,gamma,label="Gamma",floc=floc)
     fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-    ax5.plot(np.linspace(xmin,xmax,100),fit_h,"r-",label="Gamma fit for {}".format(condition))
+    ax5.plot(np.linspace(xmin,xmax,100),fit_h,fmt["color"]+"-",label="Gamma fit for {}".format(condition))
 if plot_lognorm:
     #LOGNORM
     if floc: 
@@ -260,9 +261,31 @@ if plot_lognorm:
         a,loc,scale = lognorm.fit(data)
     generalized_ks_test(data,lognorm,label="Lognormal",floc=floc)
     fit = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-    ax5.plot(np.linspace(xmin,xmax,100),fit,"r-",label="fit for {}".format(condition))
+    ax5.plot(np.linspace(xmin,xmax,100),fit,fmt["color"]+"-",label="fit for {}".format(condition))
 #plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
 norm_areas, errs= estimate_errs(pdr_names,areas_directory,database="HRF")
+plot_errorbar(np.array(norm_areas),np.array(errs),label=condition,ax=ax5,color=fmt["color"])
+
+data = ca_npdr
+condition = "NPDR curved"
+fmt.update({"color":"r"})
+fmt.update({"marker":"+"})
+if plot_gamma:
+    a,loc,scale = gamma.fit(data,floc=0)
+    generalized_ks_test(data,gamma,label="Gamma",floc=floc)
+    fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+    ax5.plot(np.linspace(xmin,xmax,100),fit_h,fmt["color"]+"-",label="Gamma fit for {}".format(condition))
+if plot_lognorm:
+    #LOGNORM
+    if floc: 
+        a,loc,scale = lognorm.fit(data,floc=0) 
+    else:
+        a,loc,scale = lognorm.fit(data)
+    generalized_ks_test(data,lognorm,label="Lognormal",floc=floc)
+    fit = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+    ax5.plot(np.linspace(xmin,xmax,100),fit,fmt["color"]+"-",label="fit for {}".format(condition))
+#plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
+norm_areas, errs= estimate_errs(npdr_names,areas_directory,database="HRF")
 plot_errorbar(np.array(norm_areas),np.array(errs),label=condition,ax=ax5,color=fmt["color"])
 
 #%%
@@ -270,27 +293,27 @@ if not DRIVE:
     # =============================================================================
     # GLAUCOMATOUS
     # =============================================================================
-    print("---\nGLAUCOMATOUS\n---")
+#    print("---\nGLAUCOMATOUS\n---")
     fmt=fmt_g
-    data = fa_g
-    condition = "Glaucomatous flat"
-    fmt.update({"marker":"x"})
-    if plot_gamma:
-        a,loc,scale = gamma.fit(data,floc=0)
-        generalized_ks_test(data,gamma,label="Gamma",floc=floc)
-        fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-        ax5.plot(np.linspace(xmin,xmax,100),fit_h,"b--",label="Gamma fit for {}".format(condition))
-    if plot_lognorm:
-        #LOGNORM
-        if floc: 
-            a,loc,scale = lognorm.fit(data,floc=0) 
-        else: 
-            a,loc,scale = lognorm.fit(data)
-        generalized_ks_test(data,lognorm,label="Lognormal",floc=floc)
-        fit_g = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
-        ax5.plot(np.linspace(xmin,xmax,100),fit_g,"b--",label="fit for {}".format(condition))
-    plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
-    
+#    data = fa_g
+#    condition = "Glaucomatous flat"
+#    fmt.update({"marker":"x"})
+#    if plot_gamma:
+#        a,loc,scale = gamma.fit(data,floc=0)
+#        generalized_ks_test(data,gamma,label="Gamma",floc=floc)
+#        fit_h = gamma.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+#        ax5.plot(np.linspace(xmin,xmax,100),fit_h,"b--",label="Gamma fit for {}".format(condition))
+#    if plot_lognorm:
+#        #LOGNORM
+#        if floc: 
+#            a,loc,scale = lognorm.fit(data,floc=0) 
+#        else: 
+#            a,loc,scale = lognorm.fit(data)
+#        generalized_ks_test(data,lognorm,label="Lognormal",floc=floc)
+#        fit_g = lognorm.pdf(np.linspace(xmin,xmax,100),a,loc,scale)
+#        ax5.plot(np.linspace(xmin,xmax,100),fit_g,"b--",label="fit for {}".format(condition))
+#    plot_linear_distribution(data,condition,n="auto",density=True,fig=fig5,ax=ax5,formatting=fmt)
+#    
     data = ca_g
     condition = "Glaucomatous curved"
     fmt.update({"marker":"o"})

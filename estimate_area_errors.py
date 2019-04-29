@@ -16,7 +16,7 @@ from matplotlib.patches import Polygon
 import numpy as np
 from numpy import pi,cos,sin,sqrt
 from voron_eye import optimum_bin_number
-
+from setup import regions_directory, areas_directory
 
 #%%
 # =============================================================================
@@ -30,8 +30,6 @@ def estimate_errs(names,areas_directory,database):
     
     save_data = False
 
-    
-    areas_directory = "C:\\Users\\admin\\Documents\\Physics\\year 4\\Vascular Networks\\voronoi cells\\voronoi_cell_areas\\"+database+"\\"
     # =============================================================================
     # FORMATTING PARAMETERS
     # =============================================================================
@@ -88,7 +86,7 @@ def estimate_errs(names,areas_directory,database):
     for i in range(len(names)):
         name = names[i]
         print(name)
-        f = open("{}_regions.pkl".format(name),"rb")
+        f = open(regions_directory+"{}_regions.pkl".format(name),"rb")
         regions = pkl.load(f)
         area_errs = list()
         f.close()
@@ -119,8 +117,8 @@ def estimate_errs(names,areas_directory,database):
                 bindices = boundary.nonzero()
                 bcells = bindices[0].size
     
-                if bcells>.5*region.sum():
-                    print("Large boundary")
+#                if bcells>.5*region.sum():
+#                    print("Large boundary")
     #                plt.figure()
     #                plt.imshow(binary_erosion(region,iterations=1)^region)    
                 
@@ -401,7 +399,7 @@ def plot_errorbar(x,err,density=True,color='black',fmt="+",label=None,ax=None,li
     if density:
         #Plot PDF
 
-        ax.errorbar(bin_centres,pdf,std_errs_pdf,linestyle=linestyle,color=color,fmt='+',capsize=5,label=label)
+        ax.errorbar(bin_centres,pdf,std_errs_pdf,linestyle=linestyle,color=color,fmt=fmt,capsize=5,label=label)
 
     fig=plt.gcf()
     return fig,ax
