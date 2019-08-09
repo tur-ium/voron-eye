@@ -7,6 +7,8 @@ Voron-Eye is a Python package which enables calculation of Voronoi cell area dis
 The data and code are made available here for future work. Recent studies have shown that replication of scientific work is a serious issue in science. The working hypothesis is that publishing the code and data alongside papers can help to address the issue by making it easier to peer review and give a foundation for future work.
 
 I would like to thank my project partner, Shervin Sabeghi for taking on the data collection side of this project and my supervisors Dimitri Vvedensky (Professor in Condensed Matter Theory, Imperial College London) and Simon Morgan (visiting researcher, Imperial College London) for their time and guidance making the results accurate.
+
+Read my [thesis](MSci_Thesis.pdf)
  
 REQUIRED PACKAGES
 -----------------
